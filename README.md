@@ -13,7 +13,7 @@ Shows in the footer:
 ## Installation
 
 ```bash
-pi install git:github.com/yourusername/pi-time-tracker
+pi install git:github.com/SamuelLHuber/pi-time-tracker
 ```
 
 Or for local development:
