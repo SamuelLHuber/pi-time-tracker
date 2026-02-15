@@ -9,6 +9,7 @@ Shows in the footer:
 - **Start time**: When the session began (HH:MM:SS)
 - **Working time**: Cumulative time the agent was actively processing
 - **Idle time**: Time spent waiting for user input
+- **TPS**: Tokens per second (throughput during working time)
 
 ## Installation
 
@@ -31,10 +32,11 @@ The extension activates automatically. The footer will display timing informatio
 ```
 /path/to/project (main) • Session Name
 ↑12k ↓5k R3k W1k $0.050 45%/200k (auto) anthropic/claude-sonnet-4
-⏱ 00:15:23 (started 14:32:01) ⚙ 00:08:45 💤 00:06:38
+⏱ 00:15:23 (started 14:32:01)  ⚙ 00:08:45  💤 00:06:38  🚀 53.5 tok/s
 ```
 
 Icons:
 - ⏱ Session time + start time
 - ⚙ Working time (agent processing)
 - 💤 Idle time (waiting for user)
+- 🚀 TPS (tokens per second throughput)

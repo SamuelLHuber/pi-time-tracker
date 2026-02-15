@@ -267,12 +267,23 @@ export default function (pi: ExtensionAPI) {
 					const workingTimeStr = formatTime(workingTime);
 					const idleTimeStr = formatTime(idleTime);
 
+					// Calculate TPS (tokens per second) based on working time
+					const totalTokens = totalInput + totalOutput + totalCacheRead + totalCacheWrite;
+					const workingSeconds = workingTime / 1000;
+					const tps = workingSeconds > 0 ? totalTokens / workingSeconds : 0;
+					const tpsStr = tps > 0 ? `${tps.toFixed(1)} tok/s` : "";
+
 					// Timing line with icons
 					const timingParts = [
 						`⏱ ${sessionTimeStr} (started ${startTimeStr})`,
 						`⚙ ${workingTimeStr}`,
 						`💤 ${idleTimeStr}`,
 					];
+
+					// Add TPS if we have token data
+					if (tpsStr) {
+						timingParts.push(`🚀 ${tpsStr}`);
+					}
 
 					let timingLine = timingParts.join("  ");
 
