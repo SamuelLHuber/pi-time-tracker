@@ -17,6 +17,7 @@ import { truncateToWidth, visibleWidth } from "@mariozechner/pi-tui";
 interface TimingEntry {
 	sessionStartTime: number;
 	totalWorkingTime: number;
+	totalStreamingTime: number;
 }
 
 // Format time as HH:MM:SS
@@ -56,6 +57,9 @@ export default function (pi: ExtensionAPI) {
 	let sessionStartTime = Date.now();
 	let totalWorkingTime = 0;
 	let turnStartTime: number | null = null;
+	// Streaming/TPS state
+	let totalStreamingTime = 0;
+	let currentStreamStart: number | null = null;
 	// Current context (set in session_start, used in footer render)
 	let currentCtx: ExtensionContext | null = null;
 
@@ -68,16 +72,19 @@ export default function (pi: ExtensionAPI) {
 				const data = entry.data as TimingEntry;
 				sessionStartTime = data.sessionStartTime;
 				totalWorkingTime = data.totalWorkingTime;
+				totalStreamingTime = data.totalStreamingTime ?? 0;
 				return;
 			}
 		}
 		// No existing timing entry - this is a new session
 		sessionStartTime = Date.now();
 		totalWorkingTime = 0;
+		totalStreamingTime = 0;
 		// Persist initial timing state
 		pi.appendEntry("pi-time-tracker", {
 			sessionStartTime,
 			totalWorkingTime,
+			totalStreamingTime,
 		} as TimingEntry);
 	}
 
@@ -86,6 +93,7 @@ export default function (pi: ExtensionAPI) {
 		pi.appendEntry("pi-time-tracker", {
 			sessionStartTime,
 			totalWorkingTime,
+			totalStreamingTime,
 		} as TimingEntry);
 	}
 
@@ -267,10 +275,13 @@ export default function (pi: ExtensionAPI) {
 					const workingTimeStr = formatTime(workingTime);
 					const idleTimeStr = formatTime(idleTime);
 
-					// Calculate TPS (tokens per second) based on working time
-					const totalTokens = totalInput + totalOutput + totalCacheRead + totalCacheWrite;
-					const workingSeconds = workingTime / 1000;
-					const tps = workingSeconds > 0 ? totalTokens / workingSeconds : 0;
+					// Calculate TPS (output tokens per second of actual LLM streaming time)
+					let currentStreamingTime = totalStreamingTime;
+					if (currentStreamStart !== null) {
+						currentStreamingTime += Date.now() - currentStreamStart;
+					}
+					const streamingSeconds = currentStreamingTime / 1000;
+					const tps = streamingSeconds > 0 ? totalOutput / streamingSeconds : 0;
 					const tpsStr = tps > 0 ? `${tps.toFixed(1)} tok/s` : "";
 
 					// Timing line with icons
@@ -330,12 +341,29 @@ export default function (pi: ExtensionAPI) {
 		}
 	});
 
+	// Track LLM streaming start
+	pi.on("message_start", async (event, _ctx) => {
+		if (event.message.role === "assistant") {
+			currentStreamStart = Date.now();
+		}
+	});
+
+	// Track LLM streaming end — accumulate streaming duration
+	pi.on("message_end", async (event, _ctx) => {
+		if (event.message.role === "assistant" && currentStreamStart !== null) {
+			totalStreamingTime += Date.now() - currentStreamStart;
+			currentStreamStart = null;
+		}
+	});
+
 	// Reset on new session
 	pi.on("session_switch", async (event, ctx) => {
 		if (event.reason === "new") {
 			sessionStartTime = Date.now();
 			totalWorkingTime = 0;
 			turnStartTime = null;
+			totalStreamingTime = 0;
+			currentStreamStart = null;
 			persistTimingState();
 			// Re-set the footer with new context
 			setCustomFooter(ctx);
