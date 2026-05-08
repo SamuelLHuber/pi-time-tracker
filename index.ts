@@ -9,9 +9,9 @@
  * Persists timing data via pi.appendEntry() for reload/resume support.
  */
 
-import type { AssistantMessage, ExtensionAPI } from "@mariozechner/pi-coding-agent";
-import type { ExtensionContext } from "@mariozechner/pi-coding-agent";
-import { truncateToWidth, visibleWidth } from "@mariozechner/pi-tui";
+import type { AssistantMessage, ExtensionAPI } from "@earendil-works/pi-coding-agent";
+import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
 // Entry type for persisting timing data
 interface TimingEntry {

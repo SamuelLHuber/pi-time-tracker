@@ -1,13 +1,13 @@
 {
   "name": "pi-time-tracker",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "description": "Session timing extension for pi-coding-agent",
   "keywords": ["pi-package"],
   "pi": {
     "extensions": ["./index.ts"]
   },
   "peerDependencies": {
-    "@mariozechner/pi-coding-agent": "*",
-    "@mariozechner/pi-tui": "*"
+    "@earendil-works/pi-coding-agent": "*",
+    "@earendil-works/pi-tui": "*"
   }
 }
