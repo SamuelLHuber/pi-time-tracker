@@ -9,8 +9,8 @@
  * Persists timing data via pi.appendEntry() for reload/resume support.
  */
 
-import type { AssistantMessage, ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import type { ExtensionContext } from "@earendil-works/pi-coding-agent";
+import type { AssistantMessage } from "@earendil-works/pi-ai";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
 // Entry type for persisting timing data
@@ -322,8 +322,17 @@ export default function (pi: ExtensionAPI) {
 	}
 
 	// Restore state on session start
-	pi.on("session_start", async (_event, ctx) => {
-		restoreTimingState(ctx);
+	pi.on("session_start", async (event, ctx) => {
+		if (event.reason === "new") {
+			sessionStartTime = Date.now();
+			totalWorkingTime = 0;
+			turnStartTime = null;
+			totalStreamingTime = 0;
+			currentStreamStart = null;
+			persistTimingState();
+		} else {
+			restoreTimingState(ctx);
+		}
 		setCustomFooter(ctx);
 	});
 
@@ -356,17 +365,4 @@ export default function (pi: ExtensionAPI) {
 		}
 	});
 
-	// Reset on new session
-	pi.on("session_switch", async (event, ctx) => {
-		if (event.reason === "new") {
-			sessionStartTime = Date.now();
-			totalWorkingTime = 0;
-			turnStartTime = null;
-			totalStreamingTime = 0;
-			currentStreamStart = null;
-			persistTimingState();
-			// Re-set the footer with new context
-			setCustomFooter(ctx);
-		}
-	});
 }
