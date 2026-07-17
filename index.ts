@@ -9,7 +9,6 @@
  * Persists timing data via pi.appendEntry() for reload/resume support.
  */
 
-import type { AssistantMessage } from "@earendil-works/pi-ai";
 import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
 import { truncateToWidth, visibleWidth } from "@earendil-works/pi-tui";
 
@@ -131,12 +130,12 @@ export default function (pi: ExtensionAPI) {
 					if (currentCtx) {
 						for (const entry of currentCtx.sessionManager.getEntries()) {
 							if (entry.type === "message" && entry.message.role === "assistant") {
-								const m = entry.message as AssistantMessage;
-								totalInput += m.usage.input;
-								totalOutput += m.usage.output;
-								totalCacheRead += m.usage.cacheRead;
-								totalCacheWrite += m.usage.cacheWrite;
-								totalCost += m.usage.cost.total;
+								const { usage } = entry.message;
+								totalInput += usage.input;
+								totalOutput += usage.output;
+								totalCacheRead += usage.cacheRead;
+								totalCacheWrite += usage.cacheWrite;
+								totalCost += usage.cost.total;
 							}
 						}
 					}
