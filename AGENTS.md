@@ -1,9 +1,10 @@
 # pi-time-tracker
 
-A pi-coding-agent extension that adds session timing to the footer.
+A Pi extension that adds branch-aware session timing in a below-editor widget.
 
 ## Development
 
 - Run `pi -e .` to test the extension locally
-- The extension replaces the footer to show timing information
+- Preserve Pi's native footer; timing belongs in the widget
+- Run `npm run check` and `npm test` before release
 - Uses `pi.appendEntry()` for persistence across reloads and session resume

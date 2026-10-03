@@ -1,10 +1,10 @@
 # pi-time-tracker
 
-A [pi-coding-agent](https://github.com/badlogic/pi-mono) extension that displays session timing information in the footer.
+A [Pi](https://pi.dev) extension that displays session timing in a below-editor widget, preserving Pi 1.0's native model/cost footer.
 
 ## Features
 
-Shows in the footer:
+Shows in the timing widget:
 - **Session time**: Total time since session start (HH:MM:SS)
 - **Start time**: When the session began (HH:MM:SS)
 - **Working time**: Cumulative time the agent was actively processing
@@ -25,7 +25,7 @@ pi -e /path/to/pi-time-tracker
 
 ## Usage
 
-The extension activates automatically. The footer will display timing information alongside the standard pwd, tokens, context usage, and model info.
+The extension activates automatically in TUI mode. Timing appears below the editor; Pi retains its native footer, including routed models, cost and other extension statuses. Both regular and fullscreen modes use the same width-bounded widget.
 
 ## Format
 
