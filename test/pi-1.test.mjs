@@ -32,3 +32,16 @@ test('print mode starts no terminal widget', async () => {
   assert.equal(host.widgets.size, 0);
   await host.emit('session_shutdown');
 });
+
+test('streaming time uses the measured assistant response duration', async t => {
+  const host = await load(resolve('index.ts'));
+  host.ctx.mode = 'print';
+  host.ctx.hasUI = false;
+  await host.emit('session_start');
+  t.after(() => host.emit('session_shutdown'));
+  await host.emit('turn_start');
+  await host.emit('message_start', { message: { role: 'assistant' } });
+  await host.emit('message_end', { message: { role: 'assistant', durationMs: 5000, usage: { output: 0 } } });
+  await host.emit('turn_end');
+  assert.equal(host.entries.at(-1).data.totalStreamingTime, 5000);
+});
