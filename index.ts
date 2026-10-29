@@ -68,9 +68,10 @@ export default function (pi: ExtensionAPI) {
 			};
 		}, { placement: "belowEditor" });
 	}
-	function finishStream() {
+	function finishStream(measuredMs?: number) {
 		if (streamStart === undefined) return;
-		state.totalStreamingTime += Math.max(0, Date.now() - streamStart);
+		const ms = Number.isFinite(measuredMs) && measuredMs! >= 0 ? measuredMs! : Date.now() - streamStart;
+		state.totalStreamingTime += Math.max(0, ms);
 		streamStart = undefined;
 	}
 	function finishTurn() {
@@ -90,7 +91,7 @@ export default function (pi: ExtensionAPI) {
 	pi.on("message_start", event => { if (event.message.role === "assistant") streamStart ??= Date.now(); });
 	pi.on("message_end", (event, ctx) => {
 		if (event.message.role !== "assistant") return;
-		finishStream();
+		finishStream(event.message.durationMs);
 		outputTokens = ctx.sessionManager.getBranch().reduce((total, entry) =>
 			total + (entry.type === "message" && entry.message.role === "assistant" ? entry.message.usage.output : 0), 0);
 		requestRender?.();
